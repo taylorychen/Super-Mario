@@ -31,9 +31,9 @@ void Block::doSomething() { }
 /////////////////////////////////////////////////////////////////////
 
 Peach::Peach(int startX, int startY)
-	:Actor(IID_PEACH, startX, startY, true /*alive*/), 
-	m_hp(1),
-	m_star(false), m_jump(false), m_fire(false) {}
+	:Actor(IID_PEACH, startX, startY, true /*alive*/),
+	hp(1),
+	m_star(false), m_jump(false), m_fire(false){}
 
 void Peach::doSomething() {
 	if (!isAlive())

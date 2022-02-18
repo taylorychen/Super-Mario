@@ -21,6 +21,7 @@ private:
 	bool m_alive;
 };
 
+//not sure if this is right
 inline
 bool Actor::isAlive() const { return m_alive; }
 
@@ -49,7 +50,7 @@ public:
 	virtual void doSomething();
 
 private:
-	int m_hp;
+	int hp;
 	bool m_star;
 	bool m_jump;
 	bool m_fire;

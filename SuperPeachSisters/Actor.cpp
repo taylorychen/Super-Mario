@@ -12,6 +12,19 @@ Actor::Actor(int imageID, int startX, int startY, StudentWorld* w, bool alive, i
 	m_alive(alive),
 	m_world(w) {}
 
+bool Actor::inHitbox(double x, double y) const {
+	double dx = x - getX();
+	double dy = y - getY();
+	return (dx < 8 && dx >= 0) && (dy < 8 && dy >= 0);
+}
+
+/////////////////////////////////////////////////////////////////////
+//////////					   PIPE 			 		   //////////
+/////////////////////////////////////////////////////////////////////
+
+Pipe::Pipe(int startX, int startY, StudentWorld* w)
+	: Actor(IID_PIPE, startX, startY, w, true /*alive*/, 0, 2)
+{}
 
 /////////////////////////////////////////////////////////////////////
 //////////					   BLOCK			 		   //////////
@@ -19,14 +32,10 @@ Actor::Actor(int imageID, int startX, int startY, StudentWorld* w, bool alive, i
 
 
 
-Block::Block(int startX, int startY, StudentWorld* w, int imageID , Goodie g)
-	: Actor(imageID, startX, startY, w, true /*alive*/, 0, 2) , m_goodie(g) {
+Block::Block(int startX, int startY, StudentWorld* w, Goodie g)
+	: Actor(IID_BLOCK, startX, startY, w, true /*alive*/, 0, 2) , m_goodie(g) {
 
 }
-
-
-
-
 
 /////////////////////////////////////////////////////////////////////
 //////////					   PEACH			 		   //////////
@@ -47,8 +56,8 @@ void Peach::doSomething() {
 
 
 	int ch;
-	int targetX = getX();
-	int targetY = getY();
+	double targetX = getX();
+	double targetY = getY();
 	if (getWorld()->getKey(ch))
 	{
 		// user hit a key during this tick!
@@ -57,14 +66,15 @@ void Peach::doSomething() {
 		case KEY_PRESS_LEFT:
 			setDirection(180);
 			targetX -= 4;
-
-			moveTo(targetX, targetY);
+			if(!getWorld()->isBlockingObjectAt2(targetX, targetY))
+				moveTo(targetX, targetY);
 			break;
 		case KEY_PRESS_RIGHT:
 			setDirection(0);
 			targetX += 4;
-			
-			moveTo(targetX, targetY);
+							//since coord taken from bottom left, add SPRITE_WIDTH - 1
+			if (!getWorld()->isBlockingObjectAt2(targetX + SPRITE_WIDTH - 1, targetY))
+				moveTo(targetX, targetY);
 			break;
 		case KEY_PRESS_SPACE:
 			

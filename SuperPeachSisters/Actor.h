@@ -16,11 +16,12 @@ class Actor : public GraphObject {
 public:
 	Actor(int imageID, int startX, int startY, StudentWorld* w, bool alive = true, int dir = 0, int depth = 0, double size = 1.0);
 	
-	virtual void doSomething() { };
+	virtual void doSomething() = 0;
 	virtual void bonk() = 0;
 	
 	StudentWorld* getWorld() { return m_world; };
 	bool isAlive() const;
+	bool inHitbox(double x, double y) const;
 	virtual bool isBlocking() const { return false; };
 
 private:
@@ -32,49 +33,38 @@ private:
 inline
 bool Actor::isAlive() const { return m_alive; }
 
+
+/////////////////////////////////////////////////////////////////////
+//////////					   PIPE 			 		   //////////
+/////////////////////////////////////////////////////////////////////
+
+class Pipe : public Actor {
+public:
+	Pipe(int startX, int startY, StudentWorld* w);
+	
+	virtual void doSomething() {};
+	virtual void bonk() {};
+	virtual bool isBlocking() const { return true; };
+};
+
 /////////////////////////////////////////////////////////////////////
 //////////					   BLOCK			 		   //////////
 /////////////////////////////////////////////////////////////////////
 
+enum Goodie {
+	empty, star, fire, jump
+};
+
 class Block : public Actor {
 public:
-	enum Goodie {
-		empty, star, fire, jump
-	};
-
-	Block(int startX, int startY, StudentWorld* w, int imageID = IID_BLOCK , Goodie g = empty);
-
+	
+	Block(int startX, int startY, StudentWorld* w, Goodie g = empty);
+	virtual void doSomething() {};
 	virtual void bonk() {};
-
 	virtual bool isBlocking() const { return true; };
 
 private:
 	Goodie m_goodie;
-};
-
-///////////////////////////////JUMP//////////////////////////////////
-class JumpBlock : public Block {
-public:
-	JumpBlock(int startX, int startY, StudentWorld* w);
-
-	virtual void bonk();
-private:
-};
-///////////////////////////////FLOWER//////////////////////////////////
-class FlowerBlock : public Block {
-public:
-	FlowerBlock();
-
-	virtual void bonk();
-private:
-};
-///////////////////////////////STAR//////////////////////////////////
-class StarBlock : public Block {
-public:
-	StarBlock();
-
-	virtual void bonk();
-private:
 };
 
 

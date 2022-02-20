@@ -56,20 +56,26 @@ int StudentWorld::init()
 
                 case Level::star_goodie_block:
                 {
-                    Actor* b = new Block(x * SPRITE_WIDTH, y * SPRITE_HEIGHT, this, IID_STAR, Block::star);
+                    Actor* b = new Block(x * SPRITE_WIDTH, y * SPRITE_HEIGHT, this, star);
                     m_actors.push_back(b);
                 }
                     break;
                 case Level::mushroom_goodie_block:
                 {
-                    Actor* b = new Block(x * SPRITE_WIDTH, y * SPRITE_HEIGHT, this, IID_MUSHROOM , Block::jump);
+                    Actor* b = new Block(x * SPRITE_WIDTH, y * SPRITE_HEIGHT, this, jump);
                     m_actors.push_back(b);
                 }
                     break;
                 case Level::flower_goodie_block:
                 {
-                    Actor* b = new Block(x * SPRITE_WIDTH, y * SPRITE_HEIGHT, this, IID_FLOWER, Block::fire);
+                    Actor* b = new Block(x * SPRITE_WIDTH, y * SPRITE_HEIGHT, this, fire);
                     m_actors.push_back(b);
+                }
+                    break;
+                case Level::pipe:
+                {
+                    Actor* p = new Pipe(x * SPRITE_WIDTH, y * SPRITE_HEIGHT, this);
+                    m_actors.push_back(p);
                 }
                     break;
                 /*case Level::koopa:
@@ -78,9 +84,7 @@ int StudentWorld::init()
                     break;
                 case Level::piranha:
                     break;
-                case Level::pipe:
-
-                    break;
+                
                 
 
                 case Level::flag:
@@ -169,5 +173,25 @@ bool StudentWorld::isBlockingObjectAt(int x, int y) {
     if (p == nullptr)
         return false;
     return p->isBlocking();
+
 }
 
+vector<Actor*> StudentWorld::objectsAt(double x, double y) {
+    vector<Actor*> out;
+    for (list<Actor*>::iterator p = m_actors.begin(); p != m_actors.end(); p++) {
+        if ((*p)->inHitbox(x, y))
+            out.push_back(*p);
+    }
+    //return empty vecotor if nothing a (x,y)
+    return out;
+}
+
+bool StudentWorld::isBlockingObjectAt2(double x, double y) {
+    vector<Actor*> a = objectsAt(x, y);
+    for (vector<Actor*>::iterator p = a.begin(); p != a.end(); p++) {
+        if ((*p)->isBlocking())
+            return true;
+    }
+    return false;
+
+}

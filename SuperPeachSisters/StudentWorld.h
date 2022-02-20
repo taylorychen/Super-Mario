@@ -5,6 +5,7 @@
 #include "Level.h"
 #include <string>
 #include <list>
+#include <vector>
 
 // Students:  Add code to this file, StudentWorld.cpp, Actor.h, and Actor.cpp
 
@@ -24,6 +25,9 @@ public:
 
 	Actor* objectAt(int x, int y);
 	bool isBlockingObjectAt(int x, int y);
+
+	std::vector<Actor*> objectsAt(double x, double y);
+	bool isBlockingObjectAt2(double x, double y);
 
 private:
 	std::list<Actor*> m_actors;

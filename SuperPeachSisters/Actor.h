@@ -35,16 +35,26 @@ bool Actor::isAlive() const { return m_alive; }
 
 
 /////////////////////////////////////////////////////////////////////
+//////////					STRUCTURE 			 		   //////////
+/////////////////////////////////////////////////////////////////////
+
+class Structure : public Actor {
+public:
+	Structure(int imageID, int startX, int startY, StudentWorld* w);
+	virtual void doSomething() {};
+	virtual void bonk() = 0;
+	bool isBlocking() const { return true; };
+};
+
+/////////////////////////////////////////////////////////////////////
 //////////					   PIPE 			 		   //////////
 /////////////////////////////////////////////////////////////////////
 
-class Pipe : public Actor {
+class Pipe : public Structure {
 public:
 	Pipe(int startX, int startY, StudentWorld* w);
 	
-	virtual void doSomething() {};
 	virtual void bonk() {};
-	virtual bool isBlocking() const { return true; };
 };
 
 /////////////////////////////////////////////////////////////////////
@@ -55,13 +65,11 @@ enum Goodie {
 	empty, star, fire, jump
 };
 
-class Block : public Actor {
+class Block : public Structure {
 public:
 	
 	Block(int startX, int startY, StudentWorld* w, Goodie g = empty);
-	virtual void doSomething() {};
 	virtual void bonk() {};
-	virtual bool isBlocking() const { return true; };
 
 private:
 	Goodie m_goodie;

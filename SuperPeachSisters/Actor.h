@@ -10,15 +10,22 @@
 //////////					   ACTOR			 		   //////////
 /////////////////////////////////////////////////////////////////////
 
+class StudentWorld;
+
 class Actor : public GraphObject {
 public:
-	Actor(int imageID, int startX, int startY, bool alive, int dir = 0, int depth = 0, double size = 1.0);
+	Actor(int imageID, int startX, int startY, StudentWorld* w, bool alive = true, int dir = 0, int depth = 0, double size = 1.0);
 	
 	virtual void doSomething() { };
+	virtual void bonk() = 0;
+	
+	StudentWorld* getWorld() { return m_world; };
 	bool isAlive() const;
+	virtual bool isBlocking() const { return false; };
 
 private:
 	bool m_alive;
+	StudentWorld* m_world;
 };
 
 //not sure if this is right
@@ -31,13 +38,45 @@ bool Actor::isAlive() const { return m_alive; }
 
 class Block : public Actor {
 public:
-	Block(int startX, int startY);
+	enum Goodie {
+		empty, star, fire, jump
+	};
 
-	virtual void doSomething();
+	Block(int startX, int startY, StudentWorld* w, int imageID = IID_BLOCK , Goodie g = empty);
+
+	virtual void bonk() {};
+
+	virtual bool isBlocking() const { return true; };
 
 private:
-	
+	Goodie m_goodie;
 };
+
+///////////////////////////////JUMP//////////////////////////////////
+class JumpBlock : public Block {
+public:
+	JumpBlock(int startX, int startY, StudentWorld* w);
+
+	virtual void bonk();
+private:
+};
+///////////////////////////////FLOWER//////////////////////////////////
+class FlowerBlock : public Block {
+public:
+	FlowerBlock();
+
+	virtual void bonk();
+private:
+};
+///////////////////////////////STAR//////////////////////////////////
+class StarBlock : public Block {
+public:
+	StarBlock();
+
+	virtual void bonk();
+private:
+};
+
 
 /////////////////////////////////////////////////////////////////////
 //////////					   PEACH			 		   //////////
@@ -45,16 +84,29 @@ private:
 
 class Peach : public Actor {
 public:
-	Peach(int startX, int startY);
+	Peach(int startX, int startY, StudentWorld* w);
 
 	virtual void doSomething();
+	virtual void bonk() {};
+
+	bool isInvinc() const;
+	bool isRecharging() const;
 
 private:
 	int hp;
 	bool m_star;
 	bool m_jump;
 	bool m_fire;
+
+	int m_invinc_time;
+	int m_recharge_time;
+	int m_jump_dist;
 };
 
+inline
+bool Peach::isInvinc() const { return m_invinc_time > 0; }
+
+inline
+bool Peach::isRecharging() const { return m_recharge_time > 0; }
 
 #endif // ACTOR_H_

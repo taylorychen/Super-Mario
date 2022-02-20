@@ -18,11 +18,7 @@ StudentWorld::StudentWorld(string assetPath)
 }
 
 StudentWorld::~StudentWorld() {
-    list<Actor*>::iterator p = m_actors.begin();
-    while (!m_actors.empty()) {
-        delete (*p);
-        p = m_actors.erase(p);
-    }
+    cleanUp();
 }
 
 int StudentWorld::init()
@@ -48,13 +44,32 @@ int StudentWorld::init()
                     break;
                 case Level::block:
                 {
-                    Actor* b = new Block(x * SPRITE_WIDTH, y * SPRITE_HEIGHT);
+                    Actor* b = new Block(x * SPRITE_WIDTH, y * SPRITE_HEIGHT, this);
                     m_actors.push_back(b);
                 }
                     break;
                 case Level::peach:
                 {
-                    m_peach = new Peach(x * SPRITE_WIDTH, y * SPRITE_HEIGHT);
+                    m_peach = new Peach(x * SPRITE_WIDTH, y * SPRITE_HEIGHT, this);
+                }
+                    break;
+
+                case Level::star_goodie_block:
+                {
+                    Actor* b = new Block(x * SPRITE_WIDTH, y * SPRITE_HEIGHT, this, IID_STAR, Block::star);
+                    m_actors.push_back(b);
+                }
+                    break;
+                case Level::mushroom_goodie_block:
+                {
+                    Actor* b = new Block(x * SPRITE_WIDTH, y * SPRITE_HEIGHT, this, IID_MUSHROOM , Block::jump);
+                    m_actors.push_back(b);
+                }
+                    break;
+                case Level::flower_goodie_block:
+                {
+                    Actor* b = new Block(x * SPRITE_WIDTH, y * SPRITE_HEIGHT, this, IID_FLOWER, Block::fire);
+                    m_actors.push_back(b);
                 }
                     break;
                 /*case Level::koopa:
@@ -66,15 +81,7 @@ int StudentWorld::init()
                 case Level::pipe:
 
                     break;
-                case Level::star_goodie_block:
-
-                    break;
-                case Level::mushroom_goodie_block:
-
-                    break;
-                case Level::flower_goodie_block:
-
-                    break;
+                
 
                 case Level::flag:
 
@@ -85,6 +92,7 @@ int StudentWorld::init()
                 }
             }
         }
+        cerr << "Done loading level" << endl;
     }
     
     return GWSTATUS_CONTINUE_GAME;
@@ -114,32 +122,52 @@ int StudentWorld::move()
                 return GWSTATUS_FINISHED_LEVEL;
         }*/
     }
-    //can consolidate into function?
+    //TODO: can consolidate into function?
     for (list<Actor*>::iterator p = m_actors.begin(); p != m_actors.end();) {
-        if ((*p)->isAlive())
+        if ((*p)->isAlive()) {
+            p++;
             continue;
+        }
+            
         delete (*p);
         p = m_actors.erase(p);
     }
-    //// Remove newly-dead actors after each tick
-    //remove dead game objects
+    // Remove newly-dead actors after each tick
+    
     //    // Update the game status line
     //    update display text // update the score/lives/level text at screen top
     //    // the player hasn’t completed the current level and hasn’t died, so
     //    // continue playing the current level
     //    return GWSTATUS_CONTINUE_GAME;
 
-    decLives();
     return GWSTATUS_CONTINUE_GAME;
     //return GWSTATUS_PLAYER_DIED;
 }
 
 void StudentWorld::cleanUp()
 {
-
+    list<Actor*>::iterator p = m_actors.begin();
+    while (!m_actors.empty()) {
+        delete (*p);
+        p = m_actors.erase(p);
+    }
+    delete m_peach;
+    m_peach = nullptr; //set to null to be safe?
 }
 
-
-void StudentWorld::insertActor(Level::GridEntry, int startX, int startY) {
-
+Actor* StudentWorld::objectAt(int x, int y) {
+    for (list<Actor*>::iterator p = m_actors.begin(); p != m_actors.end(); p++) {
+        if ((*p)->getX() == x && (*p)->getY() == y)
+            return (*p);
+    }
+    //return nullptr if no object a (x,y)
+    return nullptr;
 }
+
+bool StudentWorld::isBlockingObjectAt(int x, int y) {
+    Actor* p = objectAt(x, y);
+    if (p == nullptr)
+        return false;
+    return p->isBlocking();
+}
+

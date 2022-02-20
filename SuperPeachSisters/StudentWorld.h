@@ -14,17 +14,21 @@ class Peach;
 class StudentWorld : public GameWorld
 {
 public:
+	
+
 	StudentWorld(std::string assetPath);
 	~StudentWorld();
 	virtual int init();
 	virtual int move();
 	virtual void cleanUp();
 
+	Actor* objectAt(int x, int y);
+	bool isBlockingObjectAt(int x, int y);
+
 private:
 	std::list<Actor*> m_actors;
 	Peach* m_peach;
 
-	void insertActor(Level::GridEntry, int startX, int startY);
 
 };
 

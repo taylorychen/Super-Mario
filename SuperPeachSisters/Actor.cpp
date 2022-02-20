@@ -19,11 +19,18 @@ bool Actor::inHitbox(double x, double y) const {
 }
 
 /////////////////////////////////////////////////////////////////////
+//////////					STRUCTURE 			 		   //////////
+/////////////////////////////////////////////////////////////////////
+
+Structure::Structure(int imageID, int startX, int startY, StudentWorld* w)
+	: Actor(imageID, startX, startY, w, true/*alive*/, 0, 2) {}
+
+/////////////////////////////////////////////////////////////////////
 //////////					   PIPE 			 		   //////////
 /////////////////////////////////////////////////////////////////////
 
 Pipe::Pipe(int startX, int startY, StudentWorld* w)
-	: Actor(IID_PIPE, startX, startY, w, true /*alive*/, 0, 2)
+	: Structure(IID_PIPE, startX, startY, w)
 {}
 
 /////////////////////////////////////////////////////////////////////
@@ -33,7 +40,7 @@ Pipe::Pipe(int startX, int startY, StudentWorld* w)
 
 
 Block::Block(int startX, int startY, StudentWorld* w, Goodie g)
-	: Actor(IID_BLOCK, startX, startY, w, true /*alive*/, 0, 2) , m_goodie(g) {
+	: Structure(IID_BLOCK, startX, startY, w) , m_goodie(g) {
 
 }
 

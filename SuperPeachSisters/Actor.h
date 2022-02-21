@@ -14,13 +14,15 @@ class StudentWorld;
 
 class Actor : public GraphObject {
 public:
-	Actor(int imageID, int startX, int startY, StudentWorld* w, bool alive = true, int dir = 0, int depth = 0, double size = 1.0);
+	Actor(int imageID, int startX, int startY, StudentWorld* w, 
+		int depth = 0, int dir = 0, bool alive = true, double size = 1.0);
 	
 	virtual void doSomething() = 0;
 	virtual void bonk() = 0;
 	
 	StudentWorld* getWorld() { return m_world; };
 	bool isAlive() const;
+	void setNotAlive();
 	bool inHitbox(double x, double y) const;
 	virtual bool isBlocking() const { return false; };
 
@@ -33,6 +35,8 @@ private:
 inline
 bool Actor::isAlive() const { return m_alive; }
 
+inline
+void Actor::setNotAlive() { m_alive = false; }
 
 /////////////////////////////////////////////////////////////////////
 //////////					STRUCTURE 			 		   //////////
@@ -46,9 +50,7 @@ public:
 	bool isBlocking() const { return true; };
 };
 
-/////////////////////////////////////////////////////////////////////
-//////////					   PIPE 			 		   //////////
-/////////////////////////////////////////////////////////////////////
+///////////////////////////////PIPE//////////////////////////////////
 
 class Pipe : public Structure {
 public:
@@ -57,9 +59,7 @@ public:
 	virtual void bonk() {};
 };
 
-/////////////////////////////////////////////////////////////////////
-//////////					   BLOCK			 		   //////////
-/////////////////////////////////////////////////////////////////////
+///////////////////////////////BLOCK/////////////////////////////////
 
 enum Goodie {
 	empty, star, fire, jump
@@ -75,6 +75,25 @@ private:
 	Goodie m_goodie;
 };
 
+/////////////////////////////////////////////////////////////////////
+//////////					   GOAL  			 		   //////////
+/////////////////////////////////////////////////////////////////////
+
+class Goal : public Actor {
+public:
+	Goal(int imageID, int startX, int startY, StudentWorld* w);
+	virtual void doSomething() {};
+	virtual void bonk() {};
+	bool isBlocking() const { return false; };
+};
+
+///////////////////////////////FLAG//////////////////////////////////
+
+class Flag : public Goal {
+public:
+	Flag(int startX, int startY, StudentWorld* w);
+	virtual void bonk();
+};
 
 /////////////////////////////////////////////////////////////////////
 //////////					   PEACH			 		   //////////

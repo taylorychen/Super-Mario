@@ -7,11 +7,13 @@
 //////////					   ACTOR			 		   //////////
 /////////////////////////////////////////////////////////////////////
 
-Actor::Actor(int imageID, int startX, int startY, StudentWorld* w, bool alive, int dir, int depth, double size)
+Actor::Actor(int imageID, int startX, int startY, StudentWorld* w, 
+	int depth, int dir, bool alive, double size)
 	: GraphObject(imageID, startX, startY, dir, depth, size),
 	m_alive(alive),
 	m_world(w) {}
 
+//returns true if coordinate is in actor's hitbox
 bool Actor::inHitbox(double x, double y) const {
 	double dx = x - getX();
 	double dy = y - getY();
@@ -19,29 +21,43 @@ bool Actor::inHitbox(double x, double y) const {
 }
 
 /////////////////////////////////////////////////////////////////////
-//////////					STRUCTURE 			 		   //////////
+//////////					 STRUCTURE 			 		   //////////
 /////////////////////////////////////////////////////////////////////
 
 Structure::Structure(int imageID, int startX, int startY, StudentWorld* w)
-	: Actor(imageID, startX, startY, w, true/*alive*/, 0, 2) {}
+	: Actor(imageID, startX, startY, w, 2) {}
 
-/////////////////////////////////////////////////////////////////////
-//////////					   PIPE 			 		   //////////
-/////////////////////////////////////////////////////////////////////
+
+///////////////////////////////PIPE//////////////////////////////////
 
 Pipe::Pipe(int startX, int startY, StudentWorld* w)
 	: Structure(IID_PIPE, startX, startY, w)
 {}
 
-/////////////////////////////////////////////////////////////////////
-//////////					   BLOCK			 		   //////////
-/////////////////////////////////////////////////////////////////////
-
-
+///////////////////////////////BLOCK/////////////////////////////////
 
 Block::Block(int startX, int startY, StudentWorld* w, Goodie g)
 	: Structure(IID_BLOCK, startX, startY, w) , m_goodie(g) {
 
+}
+
+/////////////////////////////////////////////////////////////////////
+//////////					   GOAL  			 		   //////////
+/////////////////////////////////////////////////////////////////////
+
+Goal::Goal(int imageID, int startX, int startY, StudentWorld* w)
+	: Actor(imageID, startX, startY, w, 1) {}
+
+///////////////////////////////FLAG//////////////////////////////////
+
+Flag::Flag(int startX, int startY, StudentWorld* w)
+	: Goal(IID_FLAG, startX, startY, w) {}
+
+void Flag::bonk() {
+	if (!isAlive())
+		return;
+	getWorld()->increaseScore(1000);
+	setNotAlive();
 }
 
 /////////////////////////////////////////////////////////////////////
@@ -79,7 +95,7 @@ void Peach::doSomething() {
 		case KEY_PRESS_RIGHT:
 			setDirection(0);
 			targetX += 4;
-							//since coord taken from bottom left, add SPRITE_WIDTH - 1
+			//since coord taken from bottom left, add SPRITE_WIDTH - 1
 			if (!getWorld()->isBlockingObjectAt2(targetX + SPRITE_WIDTH - 1, targetY))
 				moveTo(targetX, targetY);
 			break;

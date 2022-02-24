@@ -16,6 +16,8 @@ StudentWorld::StudentWorld(string assetPath)
 : GameWorld(assetPath)
 {
     m_peach = nullptr;
+    m_levelFinished = false;
+    m_hasWon = false;
 }
 
 StudentWorld::~StudentWorld() {
@@ -35,6 +37,7 @@ int StudentWorld::init()
         cerr << "level01.txt is improperly formatted" << endl;
     else if (result == Level::load_success)
     {
+        m_levelFinished = false;
         cerr << "Successfully loaded level" << endl;
 
         for (int x = 0; x < GRID_WIDTH; x++) {
@@ -85,6 +88,12 @@ int StudentWorld::init()
                     m_actors.push_back(f);
                 }
                     break;
+                case Level::mario:
+                {
+                    Actor* m = new Mario(x * SPRITE_WIDTH, y * SPRITE_HEIGHT, this);
+                    m_actors.push_back(m);
+                }
+                    break;
                 /*case Level::koopa:
                     break;
                 case Level::goomba:
@@ -95,13 +104,10 @@ int StudentWorld::init()
                 
 
                 
-                case Level::mario:
-
-                    break;*/
+                */
                 }
             }
         }
-        cerr << "Done loading level" << endl;
     }
     
     return GWSTATUS_CONTINUE_GAME;
@@ -129,6 +135,17 @@ int StudentWorld::move()
             play completed level sound
                 return GWSTATUS_FINISHED_LEVEL;
         }*/
+
+        if (m_hasWon) {
+            playSound(SOUND_GAME_OVER);
+            return GWSTATUS_PLAYER_WON;
+        }
+
+        if (m_levelFinished) {
+            playSound(SOUND_FINISHED_LEVEL);
+            return GWSTATUS_FINISHED_LEVEL;
+        }
+           
     }
     //TODO: can consolidate into function?
     for (list<Actor*>::iterator p = m_actors.begin(); p != m_actors.end();) {
@@ -148,6 +165,7 @@ int StudentWorld::move()
     //    // continue playing the current level
     //    return GWSTATUS_CONTINUE_GAME;
 
+    
     return GWSTATUS_CONTINUE_GAME;
     //return GWSTATUS_PLAYER_DIED;
 }
@@ -163,7 +181,7 @@ void StudentWorld::cleanUp()
     m_peach = nullptr; //set to null to be safe?
 }
 
-Actor* StudentWorld::objectAt(int x, int y) {
+Actor* StudentWorld::actorAt(int x, int y) {
     for (list<Actor*>::iterator p = m_actors.begin(); p != m_actors.end(); p++) {
         if ((*p)->getX() == x && (*p)->getY() == y)
             return (*p);
@@ -172,15 +190,15 @@ Actor* StudentWorld::objectAt(int x, int y) {
     return nullptr;
 }
 
-bool StudentWorld::isBlockingObjectAt(int x, int y) {
-    Actor* p = objectAt(x, y);
+bool StudentWorld::isBlockingActorAt(int x, int y) {
+    Actor* p = actorAt(x, y);
     if (p == nullptr)
         return false;
     return p->isBlocking();
 
 }
 
-vector<Actor*> StudentWorld::objectsAt(double x, double y) {
+vector<Actor*> StudentWorld::actorsAt(double x, double y) {
     vector<Actor*> out;
     for (list<Actor*>::iterator p = m_actors.begin(); p != m_actors.end(); p++) {
         if ((*p)->inHitbox(x, y))
@@ -190,8 +208,8 @@ vector<Actor*> StudentWorld::objectsAt(double x, double y) {
     return out;
 }
 
-bool StudentWorld::isBlockingObjectAt2(double x, double y) {
-    vector<Actor*> a = objectsAt(x, y);
+bool StudentWorld::isBlockingActorAt2(double x, double y) {
+    vector<Actor*> a = actorsAt(x, y);
     for (vector<Actor*>::iterator p = a.begin(); p != a.end(); p++) {
         if ((*p)->isBlocking())
             return true;

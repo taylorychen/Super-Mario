@@ -1,5 +1,6 @@
 #include "Actor.h"
 #include "StudentWorld.h"
+#include <vector>
 
 // Students:  Add code to this file, Actor.h, StudentWorld.h, and StudentWorld.cpp
 
@@ -37,9 +38,7 @@ Pipe::Pipe(int startX, int startY, StudentWorld* w)
 ///////////////////////////////BLOCK/////////////////////////////////
 
 Block::Block(int startX, int startY, StudentWorld* w, Goodie g)
-	: Structure(IID_BLOCK, startX, startY, w) , m_goodie(g) {
-
-}
+	: Structure(IID_BLOCK, startX, startY, w) , m_goodie(g) {}
 
 /////////////////////////////////////////////////////////////////////
 //////////					   GOAL  			 		   //////////
@@ -58,6 +57,20 @@ void Flag::bonk() {
 		return;
 	getWorld()->increaseScore(1000);
 	setNotAlive();
+	getWorld()->levelFinished();
+}
+
+///////////////////////////////MARIO//////////////////////////////////
+
+Mario::Mario(int startX, int startY, StudentWorld* w)
+	: Goal(IID_MARIO, startX, startY, w) {}
+
+void Mario::bonk() {
+	if (!isAlive())
+		return;
+	getWorld()->increaseScore(1000);
+	setNotAlive();
+	getWorld()->hasWon();
 }
 
 /////////////////////////////////////////////////////////////////////
@@ -81,7 +94,8 @@ void Peach::doSomething() {
 	int ch;
 	double targetX = getX();
 	double targetY = getY();
-	if (getWorld()->getKey(ch))
+	StudentWorld* w = getWorld();
+	if (w->getKey(ch))
 	{
 		// user hit a key during this tick!
 		switch (ch)
@@ -89,14 +103,14 @@ void Peach::doSomething() {
 		case KEY_PRESS_LEFT:
 			setDirection(180);
 			targetX -= 4;
-			if(!getWorld()->isBlockingObjectAt2(targetX, targetY))
+			if(!w->isBlockingActorAt2(targetX, targetY))
 				moveTo(targetX, targetY);
 			break;
 		case KEY_PRESS_RIGHT:
 			setDirection(0);
 			targetX += 4;
 			//since coord taken from bottom left, add SPRITE_WIDTH - 1
-			if (!getWorld()->isBlockingObjectAt2(targetX + SPRITE_WIDTH - 1, targetY))
+			if (!w->isBlockingActorAt2(targetX + SPRITE_WIDTH - 1, targetY))
 				moveTo(targetX, targetY);
 			break;
 		case KEY_PRESS_SPACE:
@@ -105,6 +119,10 @@ void Peach::doSomething() {
 		case KEY_PRESS_UP:
 
 			break;
+		}
+		std::vector<Actor*> actors = w->actorsAt(getX(), getY());
+		for (Actor* ap : actors) {
+			ap->bonk();
 		}
 	}
 

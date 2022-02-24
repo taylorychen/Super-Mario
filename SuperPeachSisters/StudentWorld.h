@@ -23,16 +23,19 @@ public:
 	virtual int move();
 	virtual void cleanUp();
 
-	Actor* objectAt(int x, int y);
-	bool isBlockingObjectAt(int x, int y);
+	Actor* actorAt(int x, int y);
+	bool isBlockingActorAt(int x, int y);
 
-	std::vector<Actor*> objectsAt(double x, double y);
-	bool isBlockingObjectAt2(double x, double y);
+	std::vector<Actor*> actorsAt(double x, double y);
+	bool isBlockingActorAt2(double x, double y);
+	void levelFinished() { m_levelFinished = true; }
+	void hasWon() { m_hasWon = true; }
 
 private:
 	std::list<Actor*> m_actors;
 	Peach* m_peach;
-
+	bool m_levelFinished;
+	bool m_hasWon;
 
 };
 

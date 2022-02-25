@@ -204,7 +204,7 @@ vector<Actor*> StudentWorld::actorsAt(double x, double y) {
         if ((*p)->inHitbox(x, y))
             out.push_back(*p);
     }
-    //return empty vecotor if nothing a (x,y)
+    //return empty vector if nothing at (x,y)
     return out;
 }
 
@@ -216,4 +216,16 @@ bool StudentWorld::isBlockingActorAt2(double x, double y) {
     }
     return false;
 
+}
+
+vector<Actor*> StudentWorld::overlappingActors(Actor* a, double x, double y) {
+    vector<Actor*> out;
+    for (list<Actor*>::iterator p = m_actors.begin(); p != m_actors.end(); p++) {
+        if (*p == a)
+            continue;
+        if ((*p)->inHitbox(x, y) || (*p)->inHitbox(x + SPRITE_WIDTH - 1, y + SPRITE_HEIGHT - 1))
+            out.push_back(*p);
+    }
+    //return empty vector if no overlap
+    return out;
 }

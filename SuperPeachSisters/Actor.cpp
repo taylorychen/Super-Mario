@@ -1,6 +1,7 @@
 #include "Actor.h"
 #include "StudentWorld.h"
 #include <vector>
+using namespace std;
 
 // Students:  Add code to this file, Actor.h, StudentWorld.h, and StudentWorld.cpp
 
@@ -87,9 +88,14 @@ void Peach::doSomething() {
 		return;
 	if (isInvinc())
 		m_invinc_time--;
+		
 	if (isRecharging())
 		m_recharge_time--;
+	if (m_jump_dist > 0) {
+		double targetX = getX();
+		double targetY = getY() + 4;
 
+	}
 
 	int ch;
 	double targetX = getX();
@@ -103,8 +109,9 @@ void Peach::doSomething() {
 		case KEY_PRESS_LEFT:
 			setDirection(180);
 			targetX -= 4;
-			if(!w->isBlockingActorAt2(targetX, targetY))
-				moveTo(targetX, targetY);
+			/*if(!w->isBlockingActorAt2(targetX, targetY))
+				moveTo(targetX, targetY);*/
+			
 			break;
 		case KEY_PRESS_RIGHT:
 			setDirection(0);
@@ -120,11 +127,21 @@ void Peach::doSomething() {
 
 			break;
 		}
-		std::vector<Actor*> actors = w->actorsAt(getX(), getY());
-		for (Actor* ap : actors) {
+		vector<Actor*> actorsHere = w->overlappingActors(this, getX(), getY());
+		for (Actor* ap : actorsHere) {
 			ap->bonk();
 		}
 	}
+}
 
-
+bool Peach::tryMove(int targetX, int targetY) {
+	bool gotBlocked = false;
+	vector<Actor*> actorsHere = getWorld()->overlappingActors(this, getX(), getY());
+	for (Actor* ap : actorsHere) {
+		if (ap->isBlocking()) {
+			gotBlocked = true;
+			ap->bonk();
+		}
+	}
+	return !gotBlocked;
 }

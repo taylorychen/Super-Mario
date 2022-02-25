@@ -24,6 +24,7 @@ public:
 	bool isAlive() const;
 	void setNotAlive();
 	bool inHitbox(double x, double y) const;
+
 	virtual bool isBlocking() const { return false; };
 
 private:
@@ -116,6 +117,8 @@ public:
 
 	bool isInvinc() const;
 	bool isRecharging() const;
+
+	bool tryMove(int targetX, int targetY);
 
 private:
 	int hp;

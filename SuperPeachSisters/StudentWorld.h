@@ -15,8 +15,6 @@ class Peach;
 class StudentWorld : public GameWorld
 {
 public:
-	
-
 	StudentWorld(std::string assetPath);
 	~StudentWorld();
 	virtual int init();
@@ -28,6 +26,9 @@ public:
 
 	std::vector<Actor*> actorsAt(double x, double y);
 	bool isBlockingActorAt2(double x, double y);
+
+	std::vector<Actor*> overlappingActors(Actor* a, double x, double y);
+
 	void levelFinished() { m_levelFinished = true; }
 	void hasWon() { m_hasWon = true; }
 

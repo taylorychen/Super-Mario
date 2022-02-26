@@ -43,7 +43,7 @@ Pipe::Pipe(int startX, int startY, StudentWorld* w)
 
 ///////////////////////////////BLOCK/////////////////////////////////
 
-Block::Block(int startX, int startY, StudentWorld* w, Goodie g)
+Block::Block(int startX, int startY, StudentWorld* w, GoodieType g)
 	: Structure(IID_BLOCK, startX, startY, w) , m_goodie(g) {}
 
 /////////////////////////////////////////////////////////////////////
@@ -85,17 +85,20 @@ void Mario::bonkAux() {
 
 Peach::Peach(int startX, int startY, StudentWorld* w)
 	:Actor(IID_PEACH, startX, startY, w),
-	hp(1), m_invinc_time(false), m_recharge_time(0), m_jump_dist(0),
-	m_star(false), m_jump(false), m_fire(false){}
+	m_hp(1), m_invinc_time(false), m_recharge_time(0), m_jump_dist(0),
+	m_star(false), m_jump(false), m_flower(false){}
 
 void Peach::doSomethingAux() {
 	StudentWorld* w = getWorld();
 
-	if (isInvinc())
+	//checking and updating peach's status
+	if (m_invinc_time > 0)
 		m_invinc_time--;
 		
-	if (isRecharging())
+	if (m_recharge_time > 0)
 		m_recharge_time--;
+
+	//check jumping
 	if (m_jump_dist > 0) {
 		double targetX = getX();
 		double targetY = getY() + 4;
@@ -105,8 +108,12 @@ void Peach::doSomethingAux() {
 			moveTo(targetX, targetY);
 			m_jump_dist--;
 		}
-
 	}
+	//check falling
+	else if(w->canMove(this, getX(), getY() - 1) && w->canMove(this, getX(), getY() - 3)) {
+		moveTo(getX(), getY() - 4);
+	}
+
 	int ch;
 	double targetX = getX();
 	double targetY = getY();
@@ -119,19 +126,23 @@ void Peach::doSomethingAux() {
 		case KEY_PRESS_LEFT:
 			setDirection(180);
 			targetX -= 4;
-			/*if(!w->isBlockingActorAt2(targetX, targetY))
-				moveTo(targetX, targetY);*/
 			w->moveOrBonk(this, targetX, targetY);
 			break;
 		case KEY_PRESS_RIGHT:
 			setDirection(0);
 			targetX += 4;
-			/*if (!w->isBlockingActorAt2(targetX + SPRITE_WIDTH - 1, targetY))
-				moveTo(targetX, targetY);*/
 			w->moveOrBonk(this, targetX, targetY);
 			break;
 		case KEY_PRESS_SPACE:
-			
+		{
+			if (!m_flower || m_recharge_time > 0)
+				break;
+			w->playSound(SOUND_PLAYER_FIRE);
+			m_recharge_time = 8;
+
+			//create fireball
+
+		}
 			break;
 		case KEY_PRESS_UP:
 		{
@@ -165,3 +176,9 @@ bool Peach::tryMove(int targetX, int targetY) {
 	}
 	return !gotBlocked;
 }
+
+
+/////////////////////////////////////////////////////////////////////
+//////////					  GOODIE			 		   //////////
+/////////////////////////////////////////////////////////////////////
+

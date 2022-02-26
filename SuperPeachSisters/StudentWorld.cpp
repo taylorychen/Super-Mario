@@ -60,19 +60,19 @@ int StudentWorld::init()
 
                 case Level::star_goodie_block:
                 {
-                    Actor* b = new Block(x * SPRITE_WIDTH, y * SPRITE_HEIGHT, this, star);
+                    Actor* b = new Block(x * SPRITE_WIDTH, y * SPRITE_HEIGHT, this, Block::star);
                     m_actors.push_back(b);
                 }
                     break;
                 case Level::mushroom_goodie_block:
                 {
-                    Actor* b = new Block(x * SPRITE_WIDTH, y * SPRITE_HEIGHT, this, jump);
+                    Actor* b = new Block(x * SPRITE_WIDTH, y * SPRITE_HEIGHT, this, Block::jump);
                     m_actors.push_back(b);
                 }
                     break;
                 case Level::flower_goodie_block:
                 {
-                    Actor* b = new Block(x * SPRITE_WIDTH, y * SPRITE_HEIGHT, this, fire);
+                    Actor* b = new Block(x * SPRITE_WIDTH, y * SPRITE_HEIGHT, this, Block::fire);
                     m_actors.push_back(b);
                 }
                     break;
@@ -218,7 +218,8 @@ void StudentWorld::overlappingActors(Actor* a, double x, double y, vector<Actor*
     for (list<Actor*>::const_iterator p = m_actors.begin(); p != m_actors.end(); p++) {
         if (*p == a)
             continue;
-        if ((*p)->inHitbox(x, y) || (*p)->inHitbox(x + SPRITE_WIDTH - 1, y + SPRITE_HEIGHT - 1))
+        if ((*p)->inHitbox(x, y) || (*p)->inHitbox(x + SPRITE_WIDTH - 1, y)
+            || (*p)->inHitbox(x + SPRITE_WIDTH - 1, y + SPRITE_HEIGHT - 1) || (*p)->inHitbox(x, y + SPRITE_HEIGHT - 1))
             actors.push_back(*p);
     }
 }

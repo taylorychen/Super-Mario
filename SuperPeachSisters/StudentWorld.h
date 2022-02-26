@@ -24,6 +24,7 @@ public:
 	std::vector<Actor*> actorsAt(double x, double y);
 	bool isBlockingActorAt2(double x, double y);
 
+	
 	std::vector<Actor*> overlappingActors(Actor* a, double x, double y);
 
 	// If actor can move to (targetX,targetY), move it and return true; otherwise
@@ -36,6 +37,10 @@ public:
 	//bonk the actors overlapping with a
 	void bonkActors(Actor* a) const;
 
+	void giveStar() const { /*m_peach->gainStar();*/ };
+	void giveFlower() const { /*m_peach->gainFlower();*/ };
+	void giveJump() const { /*m_peach->gainJump();*/ };
+
 	void levelFinished() { m_levelFinished = true; }
 	void hasWon() { m_hasWon = true; }
 
@@ -45,6 +50,7 @@ private:
 	bool m_levelFinished;
 	bool m_hasWon;
 
+	//all actors that overlap with an actor at x and y put in the vector
 	void overlappingActors(Actor* a, double x, double y, std::vector<Actor*>& actors) const;
 };
 

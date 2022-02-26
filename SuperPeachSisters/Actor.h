@@ -64,18 +64,17 @@ public:
 
 ///////////////////////////////BLOCK/////////////////////////////////
 
-enum Goodie {
-	empty, star, fire, jump
-};
-
 class Block : public Structure {
 public:
-	
-	Block(int startX, int startY, StudentWorld* w, Goodie g = empty);
+	enum GoodieType {
+		empty, star, fire, jump
+	};
+
+	Block(int startX, int startY, StudentWorld* w, GoodieType g = empty);
 	virtual void bonk() {};
 
 private:
-	Goodie m_goodie;
+	GoodieType m_goodie;
 };
 
 /////////////////////////////////////////////////////////////////////
@@ -124,11 +123,16 @@ public:
 
 	bool tryMove(int targetX, int targetY);
 
+	void gainStar() { m_star = true; };
+	void gainFlower() { m_jump = true; };
+	void gainJump() { m_flower = true; };
+	void setHP(int hp) { m_hp = hp; };
+
 private:
-	int hp;
+	int m_hp;
 	bool m_star;
 	bool m_jump;
-	bool m_fire;
+	bool m_flower;
 
 	int m_invinc_time;
 	int m_recharge_time;
@@ -140,5 +144,40 @@ bool Peach::isInvinc() const { return m_invinc_time > 0; }
 
 inline
 bool Peach::isRecharging() const { return m_recharge_time > 0; }
+
+/////////////////////////////////////////////////////////////////////
+//////////					  GOODIE			 		   //////////
+/////////////////////////////////////////////////////////////////////
+
+class Goodie : public Actor {
+public:
+	Goodie(int imageID, int startX, int startY, StudentWorld* w)
+		:Actor(imageID, startX, startY, w, 1) {};
+
+};
+
+///////////////////////////////FLOWER/////////////////////////////////
+
+class Flower : public Goodie {
+public:
+	Flower(int startX, int startY, StudentWorld* w)
+		:Goodie(IID_FLOWER, startX, startY, w) {};
+};
+
+//////////////////////////////MUSHROOM////////////////////////////////
+
+class Mushroom : public Goodie {
+public:
+	Mushroom(int startX, int startY, StudentWorld* w)
+		: Goodie(IID_MUSHROOM, startX, startY, w) {};
+};
+
+////////////////////////////////STAR//////////////////////////////////
+
+class Star : public Goodie {
+public:
+	Star(int startX, int startY, StudentWorld* w)
+		: Goodie(IID_STAR, startX, startY, w) {};
+};
 
 #endif // ACTOR_H_

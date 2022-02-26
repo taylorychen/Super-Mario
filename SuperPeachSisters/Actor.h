@@ -17,7 +17,7 @@ public:
 	Actor(int imageID, int startX, int startY, StudentWorld* w, 
 		int depth = 0, int dir = 0, bool alive = true, double size = 1.0);
 	
-	virtual void doSomething() = 0;
+	void doSomething();
 	virtual void bonk() = 0;
 	
 	StudentWorld* getWorld() { return m_world; };
@@ -30,6 +30,8 @@ public:
 private:
 	bool m_alive;
 	StudentWorld* m_world;
+
+	virtual void doSomethingAux() = 0;
 };
 
 //not sure if this is right
@@ -46,7 +48,7 @@ void Actor::setNotAlive() { m_alive = false; }
 class Structure : public Actor {
 public:
 	Structure(int imageID, int startX, int startY, StudentWorld* w);
-	virtual void doSomething() {};
+	virtual void doSomethingAux() {};
 	virtual void bonk() = 0;
 	bool isBlocking() const { return true; };
 };
@@ -83,9 +85,11 @@ private:
 class Goal : public Actor {
 public:
 	Goal(int imageID, int startX, int startY, StudentWorld* w);
-	virtual void doSomething() {};
-	virtual void bonk() {};
+	virtual void doSomethingAux() {};
+	void bonk();
 	bool isBlocking() const { return false; };
+private:
+	virtual void bonkAux() = 0;
 };
 
 ///////////////////////////////FLAG//////////////////////////////////
@@ -93,7 +97,7 @@ public:
 class Flag : public Goal {
 public:
 	Flag(int startX, int startY, StudentWorld* w);
-	virtual void bonk();
+	virtual void bonkAux();
 };
 
 ///////////////////////////////MARIO//////////////////////////////////
@@ -101,7 +105,7 @@ public:
 class Mario : public Goal {
 public:
 	Mario(int startX, int startY, StudentWorld* w);
-	virtual void bonk();
+	virtual void bonkAux();
 };
 
 /////////////////////////////////////////////////////////////////////
@@ -112,7 +116,7 @@ class Peach : public Actor {
 public:
 	Peach(int startX, int startY, StudentWorld* w);
 
-	virtual void doSomething();
+	virtual void doSomethingAux();
 	virtual void bonk() {};
 
 	bool isInvinc() const;

@@ -22,6 +22,11 @@ bool Actor::inHitbox(double x, double y) const {
 	return (dx < 8 && dx >= 0) && (dy < 8 && dy >= 0);
 }
 
+void Actor::doSomething() {
+	if (m_alive)
+		doSomethingAux();
+}
+
 /////////////////////////////////////////////////////////////////////
 //////////					 STRUCTURE 			 		   //////////
 /////////////////////////////////////////////////////////////////////
@@ -48,16 +53,20 @@ Block::Block(int startX, int startY, StudentWorld* w, Goodie g)
 Goal::Goal(int imageID, int startX, int startY, StudentWorld* w)
 	: Actor(imageID, startX, startY, w, 1) {}
 
+void Goal::bonk() {
+	if (isAlive()) {
+		getWorld()->increaseScore(1000);
+		setNotAlive();
+		bonkAux();
+	}
+}
+
 ///////////////////////////////FLAG//////////////////////////////////
 
 Flag::Flag(int startX, int startY, StudentWorld* w)
 	: Goal(IID_FLAG, startX, startY, w) {}
 
-void Flag::bonk() {
-	if (!isAlive())
-		return;
-	getWorld()->increaseScore(1000);
-	setNotAlive();
+void Flag::bonkAux() {	
 	getWorld()->levelFinished();
 }
 
@@ -66,11 +75,7 @@ void Flag::bonk() {
 Mario::Mario(int startX, int startY, StudentWorld* w)
 	: Goal(IID_MARIO, startX, startY, w) {}
 
-void Mario::bonk() {
-	if (!isAlive())
-		return;
-	getWorld()->increaseScore(1000);
-	setNotAlive();
+void Mario::bonkAux() {
 	getWorld()->hasWon();
 }
 
@@ -83,9 +88,9 @@ Peach::Peach(int startX, int startY, StudentWorld* w)
 	hp(1), m_invinc_time(false), m_recharge_time(0), m_jump_dist(0),
 	m_star(false), m_jump(false), m_fire(false){}
 
-void Peach::doSomething() {
-	if (!isAlive())
-		return;
+void Peach::doSomethingAux() {
+	StudentWorld* w = getWorld();
+
 	if (isInvinc())
 		m_invinc_time--;
 		
@@ -94,13 +99,18 @@ void Peach::doSomething() {
 	if (m_jump_dist > 0) {
 		double targetX = getX();
 		double targetY = getY() + 4;
+		if (!w->moveOrBonk(this, targetX, targetY))	//something in the way
+			m_jump_dist = 0;
+		else {
+			moveTo(targetX, targetY);
+			m_jump_dist--;
+		}
 
 	}
-
 	int ch;
 	double targetX = getX();
 	double targetY = getY();
-	StudentWorld* w = getWorld();
+	
 	if (w->getKey(ch))
 	{
 		// user hit a key during this tick!
@@ -111,26 +121,36 @@ void Peach::doSomething() {
 			targetX -= 4;
 			/*if(!w->isBlockingActorAt2(targetX, targetY))
 				moveTo(targetX, targetY);*/
-			
+			w->moveOrBonk(this, targetX, targetY);
 			break;
 		case KEY_PRESS_RIGHT:
 			setDirection(0);
 			targetX += 4;
-			//since coord taken from bottom left, add SPRITE_WIDTH - 1
-			if (!w->isBlockingActorAt2(targetX + SPRITE_WIDTH - 1, targetY))
-				moveTo(targetX, targetY);
+			/*if (!w->isBlockingActorAt2(targetX + SPRITE_WIDTH - 1, targetY))
+				moveTo(targetX, targetY);*/
+			w->moveOrBonk(this, targetX, targetY);
 			break;
 		case KEY_PRESS_SPACE:
 			
 			break;
 		case KEY_PRESS_UP:
-
+		{
+			if (!w->canMove(this, targetX, targetY - 1)) {
+				if (m_jump)
+					m_jump_dist = 12;
+				else
+					m_jump_dist = 8;
+				w->playSound(SOUND_PLAYER_JUMP);
+			}
+			
+		}
 			break;
 		}
-		vector<Actor*> actorsHere = w->overlappingActors(this, getX(), getY());
+		/*vector<Actor*> actorsHere = w->overlappingActors(this, getX(), getY());
 		for (Actor* ap : actorsHere) {
 			ap->bonk();
-		}
+		}*/
+		w->bonkActors(this);
 	}
 }
 

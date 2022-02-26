@@ -181,22 +181,6 @@ void StudentWorld::cleanUp()
     m_peach = nullptr; //set to null to be safe?
 }
 
-Actor* StudentWorld::actorAt(int x, int y) {
-    for (list<Actor*>::iterator p = m_actors.begin(); p != m_actors.end(); p++) {
-        if ((*p)->getX() == x && (*p)->getY() == y)
-            return (*p);
-    }
-    //return nullptr if no object a (x,y)
-    return nullptr;
-}
-
-bool StudentWorld::isBlockingActorAt(int x, int y) {
-    Actor* p = actorAt(x, y);
-    if (p == nullptr)
-        return false;
-    return p->isBlocking();
-
-}
 
 vector<Actor*> StudentWorld::actorsAt(double x, double y) {
     vector<Actor*> out;
@@ -228,4 +212,60 @@ vector<Actor*> StudentWorld::overlappingActors(Actor* a, double x, double y) {
     }
     //return empty vector if no overlap
     return out;
+}
+
+void StudentWorld::overlappingActors(Actor* a, double x, double y, vector<Actor*>& actors) const{
+    for (list<Actor*>::const_iterator p = m_actors.begin(); p != m_actors.end(); p++) {
+        if (*p == a)
+            continue;
+        if ((*p)->inHitbox(x, y) || (*p)->inHitbox(x + SPRITE_WIDTH - 1, y + SPRITE_HEIGHT - 1))
+            actors.push_back(*p);
+    }
+}
+
+bool StudentWorld::moveOrBonk(Actor* a, double targetX, double targetY) const {
+
+    vector<Actor*> actors;
+    overlappingActors(a, targetX, targetY, actors);
+
+    for (int i = 0; i < actors.size(); i++) {
+        if (actors[i]->isBlocking()) {
+            actors[i]->bonk();
+            return false;
+        }
+    }
+    a->moveTo(targetX, targetY);
+    return true;
+    /*for (list<Actor*>::const_iterator p = m_actors.begin(); p != m_actors.end(); p++) {
+        if (*p == a)
+            continue;
+        if ((*p)->inHitbox(targetX, targetY) || (*p)->inHitbox(targetX + SPRITE_WIDTH - 1, targetY + SPRITE_HEIGHT - 1))
+            if ((*p)->isBlocking()) {
+                (*p)->bonk();
+                return false;
+            }  
+    }
+    a->moveTo(targetX, targetY);
+    return true;*/
+    //return true;
+}
+
+bool StudentWorld::canMove(Actor* a, double targetX, double targetY) const{
+    vector<Actor*> actors;
+    overlappingActors(a, targetX, targetY, actors);
+    for (int i = 0; i < actors.size(); i++) {
+        if (actors[i]->isBlocking()) {
+                return false;
+        }
+    }
+    return true;
+}
+
+void StudentWorld::bonkActors(Actor* a) const{
+    vector<Actor*> actors;
+    overlappingActors(a, a->getX(), a->getY(), actors);
+    for (int i = 0; i < actors.size(); i++) {
+        actors[i]->bonk();
+    }
+
 }

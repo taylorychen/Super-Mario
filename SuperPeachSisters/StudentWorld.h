@@ -21,13 +21,20 @@ public:
 	virtual int move();
 	virtual void cleanUp();
 
-	Actor* actorAt(int x, int y);
-	bool isBlockingActorAt(int x, int y);
-
 	std::vector<Actor*> actorsAt(double x, double y);
 	bool isBlockingActorAt2(double x, double y);
 
 	std::vector<Actor*> overlappingActors(Actor* a, double x, double y);
+
+	// If actor can move to (targetX,targetY), move it and return true; otherwise
+	// bonk the object that's blocking it and return false.
+	bool moveOrBonk(Actor* a, double targetX, double targetY) const;
+
+
+	bool canMove(Actor* a, double targetX, double targetY) const;
+
+	//bonk the actors overlapping with a
+	void bonkActors(Actor* a) const;
 
 	void levelFinished() { m_levelFinished = true; }
 	void hasWon() { m_hasWon = true; }
@@ -38,6 +45,7 @@ private:
 	bool m_levelFinished;
 	bool m_hasWon;
 
+	void overlappingActors(Actor* a, double x, double y, std::vector<Actor*>& actors) const;
 };
 
 #endif // STUDENTWORLD_H_
